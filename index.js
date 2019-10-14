@@ -6,19 +6,7 @@ const Color = require('./schema');
 
 dotenv.config();
 const app = express();
-
 app.use(bodyParser.json());
-
-// Route not found
-// app.use((req, res, next) => {
-//     return res.status(404).send('URL Not Found');
-// });
-
-// Inner error
-app.use((error, req, res, next) => {
-    console.error(error);
-    return res.status(500).send(error);
-})
 
 // GET All. INTRO
 app.get('/', (req, res) => {
@@ -32,18 +20,27 @@ app.get('/', (req, res) => {
 
 // Route all colors
 app.route('/colors')
-    .get( async (req, res) => {
+    .get( async (req, res, next) => {
         try {
             await Color.find({}, (err, colors) => {
                 res.json(colors);
             })
         } catch (error) {
-            res.send(error);
             return next(error);
         }
     })
 
-    .delete( async (req, res) => {
+    .post( async (req, res, next) => {
+        try {
+            await Color.insertMany(colorsArray);
+            res.redirect('/colors');
+
+        } catch (error) {
+            return next(error);
+        }
+    })
+
+    .delete( async (req, res, next) => {
         try {
             await Color.deleteMany();
             res.send('All colors have been erased');
@@ -55,16 +52,13 @@ app.route('/colors')
 // Route all the CRUD actions with one color
 app.route('/colors/:color')
     // GET One Color
-    .get( async (req, res) => {
+    .get( async (req, res, next) => {
 
         try {
-            console.log(req.params);
             let getColor = await Color.findOne({color: req.params.color});
-            console.log(getColor)
             res.json(getColor);
 
         } catch (error) {
-            res.send(error);
             return next(error);
         }
 
@@ -74,34 +68,30 @@ app.route('/colors/:color')
     .post( async (req, res, next) => {
 
         try {
-            console.log(req.body);
             let newColor = new Color({ color: req.body.color, hex: req.body.hex });
             await newColor.save()
             res.redirect('/colors');
 
         } catch (error) {
-            res.send(error);
-            return next(error)
+            return next(error);
         }
     })
 
     // DELETE One Color
-    .delete( async (req, res) => {
+    .delete( async (req, res, next) => {
 
         try {
-            console.log(req.body)
             await Color.findOneAndDelete({ color: req.body.color });
             res.send(`Color ${req.body.color} Deleted!`);
         
         } catch (error) {
-            res.send(error);
             return next(error);
         }
 
     })
 
     // Update one color
-    .put(async function (req, res) {
+    .put(async function (req, res, next) {
 
         let color_to_update = req.params.color;
         let new_color = req.body.color;
@@ -116,10 +106,22 @@ app.route('/colors/:color')
             }
           });
         } catch (error) {
-          res.send(error);
-          return next(error);
+            return next(error);
         }
     })
+
+
+// Route not found
+app.use((req, res, next) => {
+    return res.status(404).send('URL Not Found');
+});
+
+// Inner error
+app.use((error, req, res, next) => {
+    console.error(error);
+    return res.status(500).send(error || 'There was an error');
+})
+
 
 const PORT = process.env.PORT || 3000;
 

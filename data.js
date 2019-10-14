@@ -1,31 +1,31 @@
 const Array = [
 	{
 		color: "red",
-		value: "#f00"
+		hex: "#f00"
 	},
 	{
 		color: "green",
-		value: "#0f0"
+		hex: "#0f0"
 	},
 	{
 		color: "blue",
-		value: "#00f"
+		hex: "#00f"
 	},
 	{
 		color: "cyan",
-		value: "#0ff"
+		hex: "#0ff"
 	},
 	{
 		color: "magenta",
-		value: "#f0f"
+		hex: "#f0f"
 	},
 	{
 		color: "yellow",
-		value: "#ff0"
+		hex: "#ff0"
 	},
 	{
 		color: "black",
-		value: "#000"
+		hex: "#000"
 	}
 ]
 
